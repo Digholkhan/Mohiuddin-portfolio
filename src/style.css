@@ -20,7 +20,9 @@
   --font-mono: 'Courier New', Consolas, monospace;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -114,8 +116,17 @@ body.is-locked {
 }
 
 @keyframes pulseLogo {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px var(--cyan)); }
-  50% { transform: scale(1.08); filter: drop-shadow(0 0 20px var(--magenta)); }
+
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 10px var(--cyan));
+  }
+
+  50% {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 20px var(--magenta));
+  }
 }
 
 .pre-tag {
@@ -312,8 +323,13 @@ body.is-locked {
   transition: 0.3s ease;
 }
 
-.burger i:first-child { top: 10px; }
-.burger i:last-child { top: 20px; }
+.burger i:first-child {
+  top: 10px;
+}
+
+.burger i:last-child {
+  top: 20px;
+}
 
 /* Mobile Menu */
 .mobile-menu {
@@ -419,16 +435,18 @@ body.is-locked {
   justify-content: center;
   padding: 6rem 2rem;
   position: relative;
-  pointer-events: none; /* Let 3D canvas receive pointer events in empty space */
+  pointer-events: none;
+  /* Let 3D canvas receive pointer events in empty space */
 }
 
 .ch-inner {
   max-width: 960px;
   width: 100%;
-  pointer-events: auto; /* Buttons, forms, and cards remain interactive */
+  pointer-events: auto;
+  /* Buttons, forms, and cards remain interactive */
   background: rgba(5, 8, 20, 0.72);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
   padding: 3rem;
@@ -439,7 +457,7 @@ body.is-locked {
 }
 
 .ch-inner.rv-in {
-  opacity: 1;
+  opacity: 0.8;
   transform: translateY(0);
 }
 
@@ -615,8 +633,17 @@ body.is-locked {
 }
 
 @keyframes pulseBar {
-  0%, 100% { transform: scaleX(0.5); opacity: 0.4; }
-  50% { transform: scaleX(1.3); opacity: 1; }
+
+  0%,
+  100% {
+    transform: scaleX(0.5);
+    opacity: 0.4;
+  }
+
+  50% {
+    transform: scaleX(1.3);
+    opacity: 1;
+  }
 }
 
 /* ---------------------------------------------------------------------
@@ -663,10 +690,25 @@ body.is-locked {
   display: inline-block;
 }
 
-.dot.cyan { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
-.dot.violet { background: var(--violet); box-shadow: 0 0 8px var(--violet); }
-.dot.emerald { background: var(--emerald); box-shadow: 0 0 8px var(--emerald); }
-.dot.magenta { background: var(--magenta); box-shadow: 0 0 8px var(--magenta); }
+.dot.cyan {
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+}
+
+.dot.violet {
+  background: var(--violet);
+  box-shadow: 0 0 8px var(--violet);
+}
+
+.dot.emerald {
+  background: var(--emerald);
+  box-shadow: 0 0 8px var(--emerald);
+}
+
+.dot.magenta {
+  background: var(--magenta);
+  box-shadow: 0 0 8px var(--magenta);
+}
 
 /* ---------------------------------------------------------------------
    7 · CHAPTER 03: GENERATIVE AI FEATURES
@@ -971,11 +1013,25 @@ body.is-locked {
   padding-bottom: 0.4rem;
 }
 
-.con-hdr.cyan { color: var(--cyan); }
-.con-hdr.emerald { color: var(--emerald); }
-.con-hdr.magenta { color: var(--magenta); }
-.con-hdr.amber { color: var(--amber); }
-.con-hdr.violet { color: var(--violet); }
+.con-hdr.cyan {
+  color: var(--cyan);
+}
+
+.con-hdr.emerald {
+  color: var(--emerald);
+}
+
+.con-hdr.magenta {
+  color: var(--magenta);
+}
+
+.con-hdr.amber {
+  color: var(--amber);
+}
+
+.con-hdr.violet {
+  color: var(--violet);
+}
 
 .con-col ul {
   list-style: none;
@@ -1058,9 +1114,17 @@ body.is-locked {
   border-radius: 50%;
 }
 
-.c-dot.red { background: #ff5f56; }
-.c-dot.yellow { background: #ffbd2e; }
-.c-dot.green { background: #27c93f; }
+.c-dot.red {
+  background: #ff5f56;
+}
+
+.c-dot.yellow {
+  background: #ffbd2e;
+}
+
+.c-dot.green {
+  background: #27c93f;
+}
 
 .console-title {
   font-family: var(--font-mono);
@@ -1287,21 +1351,27 @@ body.is-locked {
   .nav-links {
     display: none;
   }
+
   .burger {
     display: block;
   }
+
   .ch-inner {
     padding: 2rem 1.5rem;
   }
+
   .form-row {
     grid-template-columns: 1fr;
   }
+
   .workflow-strip {
     flex-direction: column;
   }
+
   .wf-arrow {
     transform: rotate(90deg);
   }
+
   .hud-tracker {
     display: none;
   }
