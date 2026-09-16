@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Md Mohiuddin | Cinematic 3D Portfolio • Full-Stack Developer • AI Automation • Mentor</title>
+  <meta name="description" content="Cinematic 3D digital universe portfolio of Md Mohiuddin. Full-Stack Developer, AI Automation Engineer, Generative AI Practitioner, DevOps Enthusiast and Technology Mentor.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23050814'/%3E%3Cpath d='M8 24L16 8l8 16h-4l-4-8-4 8H8z' fill='%2300f5ff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/secret-pathways-assets/fonts.css">
+  <script src="/secret-pathways-assets/three.min.js"></script>
+  <script type="module" crossorigin src="/assets/index-B8y1R0XC.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-Cu21FgPd.css">
+</head>
+<body class="is-locked">
+  <!-- Three.js Stage & Viewport Overlays -->
+  <canvas id="gl"></canvas>
+  <div id="grain"></div>
+  <div id="vignette"></div>
+
+  <!-- Preloader Screen -->
+  <div id="pre">
+    <div class="pre-in">
+      <div class="pre-logo">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="20,4 36,32 4,32" stroke="#00f5ff" stroke-width="2.2" fill="none"/>
+          <circle cx="20" cy="22" r="4" fill="#7b2ff7"/>
+        </svg>
+      </div>
+      <div class="pre-tag">INITIALIZING DIGITAL UNIVERSE...</div>
+      <div class="pre-bar"><i id="pre-fill"></i></div>
+      <div class="pre-meta">
+        <span>ESTABLISHING NEURAL LINK // MD MOHIUDDIN</span>
+        <b id="pre-pct">0%</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sticky Global HUD Navigation -->
+  <nav class="nav" id="nav">
+    <a href="#hero" class="brand" data-nav="0">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#00f5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+          <polyline points="2 17 12 22 22 17"></polyline>
+          <polyline points="2 12 12 17 22 12"></polyline>
+        </svg>
+      </div>
+      <div class="brand-tx">
+        <b>MD MOHIUDDIN</b>
+        <i>FULL-STACK ARCHITECT & MENTOR</i>
+      </div>
+    </a>
+
+    <!-- Nav chapter links -->
+    <div class="nav-links" id="nav-links">
+      <button class="nav-link on" data-nav="0">01 Genesis</button>
+      <button class="nav-link" data-nav="1">02 Builder</button>
+      <button class="nav-link" data-nav="2">03 AI Core</button>
+      <button class="nav-link" data-nav="3">04 Automation</button>
+      <button class="nav-link" data-nav="4">05 DevOps</button>
+      <button class="nav-link" data-nav="5">06 Mentor</button>
+      <button class="nav-link" data-nav="6">07 CS</button>
+      <button class="nav-link" data-nav="7">08 Projects</button>
+      <button class="nav-link" data-nav="8">09 Constellation</button>
+      <button class="nav-link" data-nav="9">10 Philosophy</button>
+      <button class="nav-link" data-nav="10">11 Horizon</button>
+    </div>
+
+    <!-- Controls: Audio synthesizer + Mobile toggle -->
+    <div class="nav-controls">
+      <button id="audio-toggle" class="audio-btn" title="Toggle Sci-Fi Audio Synthesizer" aria-label="Toggle Audio">
+        <svg id="audio-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+        </svg>
+        <span id="audio-label">AUDIO: OFF</span>
+      </button>
+      <button class="burger" id="burger" aria-label="Toggle Menu">
+        <i></i><i></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Navigation Menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <div class="mobile-menu-inner">
+      <button class="m-link" data-nav="0">01 Genesis (Hero)</button>
+      <button class="m-link" data-nav="1">02 The Builder</button>
+      <button class="m-link" data-nav="2">03 Generative AI</button>
+      <button class="m-link" data-nav="3">04 AI Automation</button>
+      <button class="m-link" data-nav="4">05 DevOps Infrastructure</button>
+      <button class="m-link" data-nav="5">06 Mentor Lab</button>
+      <button class="m-link" data-nav="6">07 Computer Science</button>
+      <button class="m-link" data-nav="7">08 Project Universe</button>
+      <button class="m-link" data-nav="8">09 Constellation</button>
+      <button class="m-link" data-nav="9">10 My Philosophy</button>
+      <button class="m-link" data-nav="10">11 Contact & Horizon</button>
+    </div>
+  </div>
+
+  <!-- HUD Chapter Indicator Tracker -->
+  <div class="hud-tracker" id="hud-tracker">
+    <span class="hud-idx" id="hud-idx">CHAPTER 01 / 11</span>
+    <span class="hud-name" id="hud-name">DIGITAL GENESIS</span>
+    <div class="hud-bar"><i id="hud-fill"></i></div>
+  </div>
+
+  <!-- ===================================================================
+       11 CINEMATIC STORY CHAPTER OVERLAYS (NARRATIVE HTML SYNCHRONIZED TO 3D)
+       =================================================================== -->
+  <main class="story-container" id="story-container">
+
+    <!-- 01 // DIGITAL GENESIS -->
+    <section class="chapter-section hero-section" id="hero" data-chapter-index="0">
+      <div class="ch-inner" data-rv>
+        <div class="badge-chip"><span>IDENTITY MATRIX // 01</span></div>
+        <h1 class="hero-title word-reveal">MD MOHIUDDIN</h1>
+        <h2 class="hero-subtitle word-reveal">FULL-STACK DEVELOPER</h2>
+        <div class="hero-tags">
+          <span class="tag">AI Automation</span>
+          <span class="tag-dot">•</span>
+          <span class="tag">Generative AI</span>
+          <span class="tag-dot">•</span>
+          <span class="tag">DevOps</span>
+          <span class="tag-dot">•</span>
+          <span class="tag">Technology Mentor</span>
+        </div>
+        <p class="ch-desc hero-desc">
+          Building modern digital experiences, intelligent systems and automation-powered solutions.
+        </p>
+        <div class="cta-row">
+          <button class="btn btn-primary" data-nav="1">
+            <span>ENTER MY DIGITAL WORLD</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <button class="btn btn-secondary" data-nav="7">
+            <span>VIEW PROJECTS</span>
+          </button>
+        </div>
+        <div class="scroll-cue">
+          <span class="scroll-tx">SCROLL TO TRAVEL DEEPER</span>
+          <i class="scroll-anim"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 // THE BUILDER -->
+    <section class="chapter-section" id="builder" data-chapter-index="1">
+      <div class="ch-inner" data-rv>
+        <div class="badge-chip"><span>ARCHITECTURE // 02</span></div>
+        <h2 class="ch-title word-reveal">I BUILD DIGITAL SYSTEMS</h2>
+        <blockquote class="ch-quote">
+          "From database architecture to pixel-perfect interfaces, I build modern applications designed to solve real problems."
+        </blockquote>
+        <div class="tech-grid">
+          <div class="tech-card">
+            <h3><span class="dot cyan"></span> Frontend</h3>
+            <p>HTML5, CSS3, JavaScript (ESNext), React.js, Next.js, Tailwind CSS, Bootstrap</p>
+          </div>
+          <div class="tech-card">
+            <h3><span class="dot violet"></span> Backend</h3>
+            <p>Node.js, Express.js, RESTful APIs, Real-Time WebSockets, Authentication</p>
+          </div>
+          <div class="tech-card">
+            <h3><span class="dot emerald"></span> Database</h3>
+            <p>MongoDB, Firebase Firestore, Supabase PostgreSQL, Optimized Schemas</p>
+          </div>
+          <div class="tech-card">
+            <h3><span class="dot magenta"></span> Development</h3>
+            <p>Git, GitHub, API Integration, High-Throughput State, Real-Time Apps</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 // GENERATIVE AI -->
+    <section class="chapter-section" id="ai" data-chapter-index="2">
+      <div class="ch-inner" data-rv>
+        <div class="badge-chip"><span>COGNITIVE INTELLIGENCE // 03</span></div>
+        <h2 class="ch-title word-reveal">GENERATIVE AI</h2>
+        <blockquote class="ch-quote">
+          "Exploring the intersection of software engineering and intelligent systems."
+        </blockquote>
+        <div class="ai-features-grid">
+          <div class="ai-box">
+            <h4>Large Language Models (LLMs)</h4>
+            <p>Integration of frontier models into scalable web architectures with context awareness.</p>
+          </div>
+          <div class="ai-box">
+            <h4>AI-Assisted Development</h4>
+            <p>Amplifying developer velocity, intelligent refactoring, and automated test synthesis.</p>
+          </div>
+          <div class="ai-box">
+            <h4>Autonomous AI Agents</h4>
+            <p>Multi-step reasoning loops that interact dynamically with tools, APIs, and databases.</p>
+          </div>
+          <div class="ai-box">
+            <h4>Prompt Engineering & Workflows</h4>
+            <p>Structured prompting frameworks, few-shot schemas, and self-healing agent pipelines.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 // AI AUTOMATION -->
+    <section class="chapter-section" id="automation" data-chapter-index="3">
+      <div class="ch-inner" data-rv>
+        <div class="badge-chip"><span>LIVING WORKFLOW ENGINE // 04</span></div>
+        <h2 class="ch-title word-reveal">AI AUTOMATION</h2>
+        <blockquote class="ch-quote">
+          "Turning repetitive processes into intelligent workflows."
+        </blockquote>
+        <!-- Living machine workflow visual -->
+        <div class="workflow-strip">
+          <div class="wf-node">
+            <span class="wf-step">01</span>
+            <b>INPUT</b>
+            <small>Webhooks & APIs</small>
+          </div>
+          <div class="wf-arrow">➔</div>
+          <div class="wf-node">
+            <span class="wf-step">02</span>
+            <b>AI</b>
+            <small>LLM Cognition</small>
+          </div>
+          <div class="wf-arrow">➔</div>
+          <div class="wf-node">
+            <span class="wf-step">03</span>
+            <b>DECISION</b>
+            <small>Business Logic</small>
+          </div>
+          <div class="wf-arrow">➔</div>
+          <div class="wf-node">
+            <span class="wf-step">04</span>
+            <b>AUTOMATION</b>
+            <small>n8n Execution</small>
+          </div>
+          <div class="wf-arrow">➔</div>
+          <div class="wf-node">
+            <span class="wf-step">05</span>
+            <b>DATABASE</b>
+            <small>State Persistence</small>
+          </div>
+          <div class="wf-arrow">➔</div>
+          <div class="wf-node">
+            <span class="wf-step">06</span>
+            <b>OUTPUT</b>
+            <small>Dispatched Result</small>
+          </div>
+        </div>
+        <div class="node-tags-row">
+          <span>Webhooks</span> • <span>APIs</span> • <span>AI Agents</span> • <span>n8n</span> • <span>Databases</span> • <span>Email Automation</span> • <span>Notifications</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 // DEVOPS INFRASTRUCTURE -->
+    <section class="chapter-section" id="devops" data-chapter-index="4">
+      <div class="ch-inner" data-rv>
+        <div class="badge-chip"><span>REPRODUCIBLE SYSTEMS // 05</span></div>
+        <h2 class="ch-title word-reveal">DEVOPS</h2>
+        <blockquote class="ch-quote">
+          "Building reliable development workflows and understanding the infrastructure behind modern applications."
+        </blockquote>
+        <div class="devops-grid">
+          <div class="do-card">
+            <h4>Version Control</h4>
+            <p>Disciplined Git & GitHub branches, code reviews, and semantic releases.</p>
+          </div>
+          <div class="do-card">
+            <h4>CI / CD Automation</h4>
+            <p>Automated test validation, lint verification, and seamless zero-downtime builds.</p>
+          </div>
+          <div class="do-card">
+            <h4>Containers & Cloud</h4>
+            <p>Docker environments, containerized micro-apps, and scalable edge hosting.</p>
+          </div>
+          <div class="do-card">
+            <h4>Observability</h4>
+            <p>Performance monitoring, error logging, and resilient server uptime tracking.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 // MENTOR LAB (CENTERPIECE IMAGE 2) -->
+    <section class="chapter-section mentor-section" id="mentor" data-chapter-index="5">
+      <div class="ch-inner" data-rv>
+        <div class="badge-chip"><span>KNOWLEDGE TRANSMISSION // 06</span></div>
+        <h2 class="ch-title word-reveal">MENTOR • BUILDER • TEACHER</h2>
+        <blockquote class="ch-quote">
+          "I don't only build technology. I help others understand it, practice it and turn ideas into real projects."
+        </blockquote>
+        <div class="mentor-banner">
+          <div class="mb-meta">
+            <b>AI Today, Better Tomorrow</b>
+            <span>Auditorium Workshop Session with 500+ Students & Developers</span>
+          </div>
+        </div>
+        <div class="mentor-topics-cloud">
+          <span>HTML & CSS</span>
+          <span>JavaScript</span>
+          <span>React.js</span>
+          <span>Next.js</span>
+          <span>Git & GitHub</span>
+          <span>MongoDB</span>
+          <span>Firebase</span>
+          <span>Generative AI</span>
+          <span>Workflow Automation</span>
+          <span>DevOps CI/CD</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 // COMPUTER SCIENCE -->
+    <section class="chapter-section" id="cs" data-chapter-index="6">
+      <div class="ch-inner" data-rv>
+        <div class="badge-chip"><span>FIRST PRINCIPLES // 07</span></div>
+        <h2 class="ch-title word-reveal">BEYOND THE FRAMEWORK</h2>
+        <blockquote class="ch-quote cs-statement">
+          "Frameworks change. Engineering fundamentals remain."
+        </blockquote>
+        <div class="cs-tags">
+          <span class="cs-badge">Algorithms</span>
+          <span class="cs-badge">Data Structures</span>
+          <span class="cs-badge">Programming</span>
+          <span class="cs-badge">Software Engineering</span>
+          <span class="cs-badge">Databases</span>
+          <span class="cs-badge">Networking</span>
+          <span class="cs-badge">System Architecture</span>
+          <span class="cs-badge">Artificial Intelligence</span>
+          <span class="cs-badge">Automation</span>
+          <span class="cs-badge">Problem Solving</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 // PROJECT UNIVERSE -->
+    <section class="chapter-section projects-section" id="projects" data-chapter-index="7">
+      <div class="ch-inner" data-rv>
+        <div class="badge-chip"><span>DEPLOYED WORK // 08</span></div>
+        <h2 class="ch-title word-reveal">PROJECT UNIVERSE</h2>
+        <p class="ch-desc">
+          Interactive digital applications engineered with modern technologies and real-world architectures.
+        </p>
+
+        <div class="projects-carousel" id="projects-carousel">
+          <!-- Populated dynamically from portfolioData.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 09 // TECHNOLOGY CONSTELLATION -->
+    <section class="chapter-section" id="constellation" data-chapter-index="8">
+      <div class="ch-inner" data-rv>
+        <div class="badge-chip"><span>SKILL MATRIX // 09</span></div>
+        <h2 class="ch-title word-reveal">TECHNOLOGY CONSTELLATION</h2>
+        <div class="constellation-grid">
+          <div class="con-col">
+            <h4 class="con-hdr cyan">DEVELOPMENT</h4>
+            <ul>
+              <li>React.js / Next.js</li>
+              <li>JavaScript (ESNext)</li>
+              <li>HTML5 & CSS3</li>
+              <li>Tailwind CSS / Bootstrap</li>
+              <li>Node.js & Express</li>
+            </ul>
+          </div>
+          <div class="con-col">
+            <h4 class="con-hdr emerald">DATABASE</h4>
+            <ul>
+              <li>MongoDB</li>
+              <li>Firebase Firestore</li>
+              <li>Supabase PostgreSQL</li>
+              <li>Data Modeling</li>
+            </ul>
+          </div>
+          <div class="con-col">
+            <h4 class="con-hdr magenta">AI & LLM</h4>
+            <ul>
+              <li>Generative AI</li>
+              <li>LLMs Integration</li>
+              <li>AI Agents</li>
+              <li>Prompt Engineering</li>
+              <li>AI-Assisted Dev</li>
+            </ul>
+          </div>
+          <div class="con-col">
+            <h4 class="con-hdr amber">AUTOMATION</h4>
+            <ul>
+              <li>n8n Workflows</li>
+              <li>Webhooks & APIs</li>
+              <li>Event Triggers</li>
+              <li>Workflow Pipelines</li>
+            </ul>
+          </div>
+          <div class="con-col">
+            <h4 class="con-hdr violet">DEVOPS</h4>
+            <ul>
+              <li>Git & GitHub</li>
+              <li>CI / CD Pipelines</li>
+              <li>Cloud Deployments</li>
+              <li>Containers / Docker</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 // MY PHILOSOPHY -->
+    <section class="chapter-section philosophy-section" id="philosophy" data-chapter-index="9">
+      <div class="ch-inner" data-rv>
+        <div class="badge-chip"><span>CORE AXIOM // 10</span></div>
+        <div class="philosophy-words">
+          <span class="p-word word-reveal">BUILD.</span>
+          <span class="p-word word-reveal">AUTOMATE.</span>
+          <span class="p-word word-reveal">LEARN.</span>
+          <span class="p-word word-reveal">TEACH.</span>
+        </div>
+        <blockquote class="ch-quote phil-statement">
+          "Technology is a continuous journey of building, experimenting, learning and sharing knowledge."
+        </blockquote>
+      </div>
+    </section>
+
+    <!-- 11 // DIGITAL HORIZON & CONTACT -->
+    <section class="chapter-section horizon-section" id="horizon" data-chapter-index="10">
+      <div class="ch-inner" data-rv>
+        <div class="badge-chip"><span>DIGITAL HORIZON // 11</span></div>
+        <h2 class="horizon-title word-reveal">MD MOHIUDDIN</h2>
+        <p class="horizon-roles">Full-Stack Developer • AI Automation • Generative AI • DevOps • Mentor</p>
+        <h3 class="horizon-action word-reveal">LET'S BUILD SOMETHING.</h3>
+
+        <!-- Interactive Contact Console -->
+        <div class="contact-console">
+          <div class="console-hdr">
+            <span class="c-dot red"></span>
+            <span class="c-dot yellow"></span>
+            <span class="c-dot green"></span>
+            <span class="console-title">SECURE TRANSMISSION CONSOLE // PORT: 5173</span>
+          </div>
+          <form class="contact-form" id="contact-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="name">IDENTITY / NAME</label>
+                <input type="text" id="name" required placeholder="Your name or organization">
+              </div>
+              <div class="form-group">
+                <label for="email">TRANSMISSION FREQUENCY / EMAIL</label>
+                <input type="email" id="email" required placeholder="your.email@domain.com">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="message">PAYLOAD / MESSAGE</label>
+              <textarea id="message" rows="3" required placeholder="Describe your project, collaboration, or mentoring inquiry..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-submit">
+              <span>TRANSMIT MESSAGE</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+            <div class="form-status" id="form-status"></div>
+          </form>
+        </div>
+
+        <!-- Direct Social Links -->
+        <div class="social-links-row">
+          <a href="https://github.com/Digholkhan" target="_blank" rel="noopener" class="social-chip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+            <span>GITHUB // @Digholkhan</span>
+          </a>
+          <a href="https://linkedin.com/in/md-mohiuddin" target="_blank" rel="noopener" class="social-chip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+            <span>LINKEDIN // MD MOHIUDDIN</span>
+          </a>
+          <a href="mailto:mohiuddin.developer@gmail.com" class="social-chip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            <span>EMAIL DIRECT</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive Project Modal Detail Viewer -->
+  <div class="project-modal" id="project-modal">
+    <div class="pm-backdrop" id="pm-backdrop"></div>
+    <div class="pm-dialog">
+      <button class="pm-close" id="pm-close" aria-label="Close Project Modal">&times;</button>
+      <div class="pm-badge" id="pm-badge">AI CANDIDATE INTELLIGENCE</div>
+      <h3 class="pm-title" id="pm-title">JobSphere AI</h3>
+      <p class="pm-desc" id="pm-desc">Project details...</p>
+      <div class="pm-highlights">
+        <h4>System Highlights</h4>
+        <ul id="pm-highlights-list"></ul>
+      </div>
+      <div class="pm-tech-stack" id="pm-tech-stack"></div>
+      <div class="pm-actions">
+        <a href="#" target="_blank" id="pm-live-btn" class="btn btn-primary">
+          <span>LAUNCH DEMO</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        </a>
+        <a href="#" target="_blank" id="pm-git-btn" class="btn btn-secondary">
+          <span>VIEW SOURCE ON GITHUB</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
