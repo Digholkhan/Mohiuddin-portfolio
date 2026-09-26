@@ -328,9 +328,9 @@ export function createEngine() {
         pos: [-4.8, -2.4, 1.4], emissive: 0x339933
       },
       {
-        logo: 'mongo',   name: 'MongoDB',   sub: 'NoSQL Database',
-        color: '#00ED64', bg0: '#082b15',   bg1: '#04170b',
-        pos: [ 4.8, -2.4, 1.4], emissive: 0x00ed64
+        logo: 'express', name: 'Express.js', sub: 'Backend Framework',
+        color: '#ffffff', bg0: '#1c1c24',   bg1: '#101018',
+        pos: [ 4.8, -2.4, 1.4], emissive: 0xffffff
       }
     ];
 
