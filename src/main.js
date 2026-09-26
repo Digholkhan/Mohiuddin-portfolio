@@ -192,9 +192,11 @@ import { mulberry32 } from './3d/textures.js';
     const hudFill = document.getElementById('hud-fill');
 
     function updateHUDAndNav(prog) {
-      // Use floor with a slight forward-bias (0.4 into a section triggers the next)
-      // This prevents the HUD rapidly toggling at the half-way boundary
-      const curIdx = Math.min(Math.max(Math.floor(prog + 0.5), 0), CHAPTERS.length - 1);
+      // Map prog (0 to 11) to chapter index (0 to 10)
+      // When at intro (prog < 1.2), curIdx = 0 (Chapter 01: Genesis)
+      // When at hero (prog ~ 1), curIdx = 0 (Chapter 01: Genesis)
+      // When at builder (prog ~ 2), curIdx = 1 (Chapter 02: Builder), etc.
+      const curIdx = prog < 1.2 ? 0 : Math.min(Math.max(Math.round(prog) - 1, 0), CHAPTERS.length - 1);
       const chapter = CHAPTERS[curIdx];
       const accent = CHAPTER_COLORS[curIdx] || '#00f5ff';
 
@@ -214,7 +216,8 @@ import { mulberry32 } from './3d/textures.js';
       // Update HUD tracker
       if (hudIdx) hudIdx.textContent = `CHAPTER ${String(curIdx + 1).padStart(2, '0')} / 11`;
       if (hudName) hudName.textContent = chapter.title.split('//')[1]?.trim() || chapter.label.toUpperCase();
-      if (hudFill) hudFill.style.width = `${(prog / (CHAPTERS.length - 1)) * 100}%`;
+      const totalSteps = Math.max(sections.length - 1, 1);
+      if (hudFill) hudFill.style.width = `${Math.min(Math.max(prog / totalSteps, 0), 1) * 100}%`;
     }
 
     // Scroll listener updates HUD & 3D camera
@@ -244,17 +247,30 @@ import { mulberry32 } from './3d/textures.js';
         }
 
         measure();
-        const targetY = anchors[targetIdx] !== undefined ? anchors[targetIdx] : 0;
+        // targetIdx 0 is Genesis (#hero, which is sections[1])
+        // targetIdx >= 1 is section targetIdx + 1
+        const sectionIdx = targetIdx === 0 ? 1 : targetIdx + 1;
+        const targetY = anchors[sectionIdx] !== undefined ? anchors[sectionIdx] : 0;
         window.scrollTo({
           top: targetY,
           behavior: 'smooth'
         });
 
         if (engine) {
-          engine.flyToChapter(targetIdx);
+          engine.flyToChapter(sectionIdx);
         }
       });
     });
+
+    // Clicking brand logo scrolls to intro
+    const brand = document.querySelector('.brand');
+    if (brand) {
+      brand.addEventListener('click', e => {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (engine) engine.flyToChapter(0);
+      });
+    }
 
     // Mobile burger toggle
     burger.addEventListener('click', () => {

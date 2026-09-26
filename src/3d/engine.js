@@ -31,6 +31,7 @@ export function createEngine() {
 
   let renderer, scene, camera, clock;
   let portraitMesh, portraitHolo, workshopMesh, workshopDissolveParticles;
+  let bannerMesh, bannerHolo, bannerGroup;
   let philosophyPortrait;
   let pulsePackets = [];
   let rotatingObjects = [];
@@ -54,27 +55,29 @@ export function createEngine() {
      1 · CAMERA RIG WAYPOINTS (11 SCENES ALONG Z AXIS)
      --------------------------------------------------------------------- */
   const WAYPOINTS = [
-    // 0: Genesis (Hero)
+    // 0: Genesis (Hero) - Intro (Portrait Scene)
     { p: [0, 4.2, 14],       t: [0, 3.8, 0] },
-    // 1: The Builder
-    { p: [-2.4, 5.0, -12],   t: [0, 4.5, -24] },
-    // 2: Generative AI
+    // 1: Genesis - Identity Matrix (3D Banner Scene)
+    { p: [0, 4.2, 0],        t: [0, 4.0, -9] },
+    // 2: The Builder (Workshop Scene)
+    { p: [-2.4, 5.0, -14],   t: [0, 4.5, -24] },
+    // 3: Generative AI
     { p: [3.2, 7.5, -42],    t: [0, 7.0, -56] },
-    // 3: AI Automation
+    // 4: AI Automation
     { p: [-3.5, 5.5, -74],   t: [0, 5.0, -88] },
-    // 4: DevOps Infrastructure
+    // 5: DevOps Infrastructure
     { p: [3.0, 6.0, -106],   t: [0, 5.2, -120] },
-    // 5: Mentor Lab (Image 2 Auditorium)
+    // 6: Mentor Lab (Image 2 Auditorium)
     { p: [0, 5.4, -138],     t: [0, 5.2, -152] },
-    // 6: Computer Science Fundamentals
+    // 7: Computer Science Fundamentals
     { p: [-3.0, 6.5, -170],  t: [0, 6.0, -184] },
-    // 7: Project Universe
+    // 8: Project Universe
     { p: [2.8, 6.0, -202],   t: [0, 5.5, -218] },
-    // 8: Technology Constellation
+    // 9: Technology Constellation
     { p: [-2.2, 7.2, -238],  t: [0, 7.0, -254] },
-    // 9: My Philosophy
+    // 10: My Philosophy
     { p: [0, 5.0, -272],     t: [0, 4.8, -286] },
-    // 10: Digital Horizon
+    // 11: Digital Horizon
     { p: [0, 5.0, -304],     t: [0, 6.0, -332] }
   ];
 
@@ -115,10 +118,53 @@ export function createEngine() {
       }
     }
 
+    // Dynamic tilt on banner projection
+    if (bannerMesh) {
+      bannerMesh.rotation.y = RIG.mx * 0.12;
+      bannerMesh.rotation.x = -RIG.my * 0.08;
+      if (bannerHolo) {
+        bannerHolo.rotation.y = RIG.mx * 0.15;
+        bannerHolo.rotation.x = -RIG.my * 0.10;
+      }
+    }
+
     // Dynamic tilt on workshop projection
     if (workshopMesh) {
       workshopMesh.rotation.y = RIG.mx * 0.10;
       workshopMesh.rotation.x = -RIG.my * 0.08;
+    }
+
+    // Smooth opacity cross-fade for seamless travel
+    // Fade portrait: 1.0 at 0..0.4, fades to 0 at 0.4..0.9
+    if (portraitMesh && portraitMesh.material) {
+      let pAlpha = 1.0;
+      if (RIG.smooth > 0.4) {
+        pAlpha = clamp(1.0 - (RIG.smooth - 0.4) / 0.5, 0, 1);
+      }
+      portraitMesh.material.opacity = pAlpha;
+      portraitMesh.visible = pAlpha > 0.01;
+      if (portraitHolo && portraitHolo.material) {
+        portraitHolo.material.opacity = pAlpha * 0.45;
+        portraitHolo.visible = pAlpha > 0.01;
+      }
+    }
+
+    // Fade banner: 0 at <0.2, fades in 0.2..0.7, full 0.7..1.3, fades out 1.3..1.85
+    if (bannerMesh && bannerMesh.material) {
+      let bAlpha = 0.0;
+      if (RIG.smooth >= 0.2 && RIG.smooth < 0.7) {
+        bAlpha = clamp((RIG.smooth - 0.2) / 0.5, 0, 1);
+      } else if (RIG.smooth >= 0.7 && RIG.smooth <= 1.3) {
+        bAlpha = 1.0;
+      } else if (RIG.smooth > 1.3 && RIG.smooth <= 1.85) {
+        bAlpha = clamp(1.0 - (RIG.smooth - 1.3) / 0.55, 0, 1);
+      }
+      bannerMesh.material.opacity = bAlpha;
+      bannerMesh.visible = bAlpha > 0.01;
+      if (bannerHolo && bannerHolo.material) {
+        bannerHolo.material.opacity = bAlpha * 0.45;
+        bannerHolo.visible = bAlpha > 0.01;
+      }
     }
   }
 
@@ -209,7 +255,9 @@ export function createEngine() {
         metalness: 0.2,
         emissive: 0x051226,
         emissiveIntensity: 0.25,
-        side: THREE.DoubleSide
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 1.0
       });
 
       portraitMesh = new THREE.Mesh(portraitGeo, mat);
@@ -262,6 +310,123 @@ export function createEngine() {
     }
     pylon(-7.5, 3, 18, 2.5);
     pylon(7.5, 3, 18, 2.5);
+  }
+
+  /* ---------------------------------------------------------------------
+     3.5 · SCENE 01B: THE CYBER BANNER (IMAGE 3 — BANNER AS 3D BACKGROUND)
+     --------------------------------------------------------------------- */
+  function buildBannerScene() {
+    bannerGroup = new THREE.Group();
+    bannerGroup.position.set(0, 4.2, -9);
+
+    const loader = new THREE.TextureLoader();
+    loader.load('/assets/banner.png', texture => {
+      texture.minFilter = THREE.LinearFilter;
+      texture.generateMipmaps = false;
+
+      // 1024x560 aspect ratio (~1.828)
+      const w = 13.5, h = 7.38;
+      const bannerGeo = new THREE.PlaneGeometry(w, h, 32, 16);
+
+      // Subtle curved vertex distortion for cinematic depth
+      const pos = bannerGeo.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        const x = pos.getX(i);
+        pos.setZ(i, -Math.pow(x / 6.75, 2) * 0.42);
+      }
+      bannerGeo.computeVertexNormals();
+
+      const mat = new THREE.MeshStandardMaterial({
+        map: texture,
+        roughness: 0.25,
+        metalness: 0.2,
+        emissive: 0x07162e,
+        emissiveIntensity: 0.35,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.0
+      });
+
+      bannerMesh = new THREE.Mesh(bannerGeo, mat);
+      bannerGroup.add(bannerMesh);
+
+      // Holographic glowing cyber frame
+      const frameGeo = new THREE.PlaneGeometry(w + 0.35, h + 0.35, 32, 16);
+      const fpos = frameGeo.attributes.position;
+      for (let i = 0; i < fpos.count; i++) {
+        const x = fpos.getX(i);
+        fpos.setZ(i, -Math.pow(x / 6.75, 2) * 0.42 - 0.03);
+      }
+      frameGeo.computeVertexNormals();
+
+      const frameMat = new THREE.MeshBasicMaterial({
+        color: 0x00f5ff,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.0,
+        blending: THREE.AdditiveBlending
+      });
+      bannerHolo = new THREE.Mesh(frameGeo, frameMat);
+      bannerGroup.add(bannerHolo);
+
+      // Four corner cyber brackets
+      const bMat = new THREE.MeshBasicMaterial({ color: 0x00f5ff, transparent: true, opacity: 0.5 });
+      const bSize = 0.55, bThick = 0.04;
+      [
+        [-w / 2 - 0.1,  h / 2 + 0.1],
+        [ w / 2 + 0.1,  h / 2 + 0.1],
+        [-w / 2 - 0.1, -h / 2 - 0.1],
+        [ w / 2 + 0.1, -h / 2 - 0.1]
+      ].forEach(([bx, by]) => {
+        const bracket = new THREE.Mesh(new THREE.BoxGeometry(bSize, bSize, bThick), bMat);
+        bracket.position.set(bx, by, 0.05);
+        bannerHolo.add(bracket);
+      });
+    });
+
+    // Ambient floating cyberspace particles around the banner
+    const N = 70;
+    const pPos = new Float32Array(N * 3);
+    const rnd = mulberry32(777);
+    for (let i = 0; i < N; i++) {
+      pPos[i * 3]     = (rnd() - 0.5) * 20;
+      pPos[i * 3 + 1] = (rnd() - 0.5) * 10;
+      pPos[i * 3 + 2] = (rnd() - 0.5) * 8;
+    }
+    const pGeo = new THREE.BufferGeometry();
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+    const bannerStars = new THREE.Points(
+      pGeo,
+      new THREE.PointsMaterial({
+        color: 0x00f5ff,
+        size: 0.12,
+        transparent: true,
+        opacity: 0.4,
+        blending: THREE.AdditiveBlending
+      })
+    );
+    bannerGroup.add(bannerStars);
+
+    // Flanking neon vertical light conduits
+    [-7.8, 7.8].forEach(lx => {
+      const conduitGeo = new THREE.CylinderGeometry(0.08, 0.08, 14, 16);
+      const conduitMat = new THREE.MeshBasicMaterial({
+        color: 0x00f5ff,
+        transparent: true,
+        opacity: 0.45,
+        blending: THREE.AdditiveBlending
+      });
+      const conduit = new THREE.Mesh(conduitGeo, conduitMat);
+      conduit.position.set(lx, 0, 0);
+      bannerGroup.add(conduit);
+    });
+
+    // Soft cyan point light illuminating the banner
+    const bannerLight = new THREE.PointLight(0x00f5ff, 1.8, 18, 2);
+    bannerLight.position.set(0, 0, 2.5);
+    bannerGroup.add(bannerLight);
+
+    scene.add(bannerGroup);
   }
 
   /* ---------------------------------------------------------------------
@@ -1227,6 +1392,7 @@ export function createEngine() {
     buildLights();
     buildGlobalEnvironment();
     buildHeroScene();
+    buildBannerScene();
     buildDeveloperScene();
     buildAiScene();
     buildAutomationScene();

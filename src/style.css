@@ -471,6 +471,23 @@ body.is-locked {
   transform: translateY(0);
 }
 
+#intro {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 5vh;
+  pointer-events: none;
+}
+
+#hero .ch-inner {
+  background: rgba(5, 8, 20, 0.58);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(0, 245, 255, 0.28);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 245, 255, 0.12);
+}
+
 .badge-chip {
   display: inline-flex;
   align-items: center;
