@@ -323,14 +323,14 @@ export function createEngine() {
         pos: [ 4.8,  2.4, 1.4], emissive: 0xffffff
       },
       {
-        logo: 'mongo',   name: 'MongoDB',   sub: 'NoSQL Database',
-        color: '#00ED64', bg0: '#062b15',   bg1: '#041c0e',
-        pos: [-4.8, -2.4, 1.4], emissive: 0x00ed64
+        logo: 'nodejs',  name: 'Node.js',   sub: 'JavaScript Runtime',
+        color: '#339933', bg0: '#0b2612',   bg1: '#051609',
+        pos: [-4.8, -2.4, 1.4], emissive: 0x339933
       },
       {
-        logo: 'express', name: 'Express',   sub: 'Node.js Framework',
-        color: '#eeeeee', bg0: '#1a1a1a',   bg1: '#111111',
-        pos: [ 4.8, -2.4, 1.4], emissive: 0xffffff
+        logo: 'mongo',   name: 'MongoDB',   sub: 'NoSQL Database',
+        color: '#00ED64', bg0: '#082b15',   bg1: '#04170b',
+        pos: [ 4.8, -2.4, 1.4], emissive: 0x00ed64
       }
     ];
 
