@@ -325,14 +325,15 @@ export function createEngine() {
       texture.generateMipmaps = false;
 
       // 1024x560 aspect ratio (~1.828)
-      const w = 13.5, h = 7.38;
+      // Precise framed 3D panel matching Developer workshop scale (6.8 x 3.72)
+      const w = 6.8, h = 3.72;
       const bannerGeo = new THREE.PlaneGeometry(w, h, 32, 16);
 
       // Subtle curved vertex distortion for cinematic depth
       const pos = bannerGeo.attributes.position;
       for (let i = 0; i < pos.count; i++) {
         const x = pos.getX(i);
-        pos.setZ(i, -Math.pow(x / 6.75, 2) * 0.42);
+        pos.setZ(i, -Math.pow(x / 3.4, 2) * 0.22);
       }
       bannerGeo.computeVertexNormals();
 
@@ -351,11 +352,11 @@ export function createEngine() {
       bannerGroup.add(bannerMesh);
 
       // Holographic glowing cyber frame
-      const frameGeo = new THREE.PlaneGeometry(w + 0.35, h + 0.35, 32, 16);
+      const frameGeo = new THREE.PlaneGeometry(w + 0.25, h + 0.25, 32, 16);
       const fpos = frameGeo.attributes.position;
       for (let i = 0; i < fpos.count; i++) {
         const x = fpos.getX(i);
-        fpos.setZ(i, -Math.pow(x / 6.75, 2) * 0.42 - 0.03);
+        fpos.setZ(i, -Math.pow(x / 3.4, 2) * 0.22 - 0.02);
       }
       frameGeo.computeVertexNormals();
 
@@ -370,28 +371,28 @@ export function createEngine() {
       bannerGroup.add(bannerHolo);
 
       // Four corner cyber brackets
-      const bMat = new THREE.MeshBasicMaterial({ color: 0x00f5ff, transparent: true, opacity: 0.5 });
-      const bSize = 0.55, bThick = 0.04;
+      const bMat = new THREE.MeshBasicMaterial({ color: 0x00f5ff, transparent: true, opacity: 0.6 });
+      const bSize = 0.38, bThick = 0.03;
       [
-        [-w / 2 - 0.1,  h / 2 + 0.1],
-        [ w / 2 + 0.1,  h / 2 + 0.1],
-        [-w / 2 - 0.1, -h / 2 - 0.1],
-        [ w / 2 + 0.1, -h / 2 - 0.1]
+        [-w / 2 - 0.08,  h / 2 + 0.08],
+        [ w / 2 + 0.08,  h / 2 + 0.08],
+        [-w / 2 - 0.08, -h / 2 - 0.08],
+        [ w / 2 + 0.08, -h / 2 - 0.08]
       ].forEach(([bx, by]) => {
         const bracket = new THREE.Mesh(new THREE.BoxGeometry(bSize, bSize, bThick), bMat);
-        bracket.position.set(bx, by, 0.05);
+        bracket.position.set(bx, by, 0.04);
         bannerHolo.add(bracket);
       });
     });
 
     // Ambient floating cyberspace particles around the banner
-    const N = 70;
+    const N = 50;
     const pPos = new Float32Array(N * 3);
     const rnd = mulberry32(777);
     for (let i = 0; i < N; i++) {
-      pPos[i * 3]     = (rnd() - 0.5) * 20;
-      pPos[i * 3 + 1] = (rnd() - 0.5) * 10;
-      pPos[i * 3 + 2] = (rnd() - 0.5) * 8;
+      pPos[i * 3]     = (rnd() - 0.5) * 11;
+      pPos[i * 3 + 1] = (rnd() - 0.5) * 6;
+      pPos[i * 3 + 2] = (rnd() - 0.5) * 4;
     }
     const pGeo = new THREE.BufferGeometry();
     pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
@@ -399,17 +400,17 @@ export function createEngine() {
       pGeo,
       new THREE.PointsMaterial({
         color: 0x00f5ff,
-        size: 0.12,
+        size: 0.1,
         transparent: true,
-        opacity: 0.4,
+        opacity: 0.45,
         blending: THREE.AdditiveBlending
       })
     );
     bannerGroup.add(bannerStars);
 
     // Flanking neon vertical light conduits
-    [-7.8, 7.8].forEach(lx => {
-      const conduitGeo = new THREE.CylinderGeometry(0.08, 0.08, 14, 16);
+    [-4.2, 4.2].forEach(lx => {
+      const conduitGeo = new THREE.CylinderGeometry(0.06, 0.06, 8, 16);
       const conduitMat = new THREE.MeshBasicMaterial({
         color: 0x00f5ff,
         transparent: true,
@@ -422,8 +423,8 @@ export function createEngine() {
     });
 
     // Soft cyan point light illuminating the banner
-    const bannerLight = new THREE.PointLight(0x00f5ff, 1.8, 18, 2);
-    bannerLight.position.set(0, 0, 2.5);
+    const bannerLight = new THREE.PointLight(0x00f5ff, 1.4, 12, 2);
+    bannerLight.position.set(0, 0, 2.0);
     bannerGroup.add(bannerLight);
 
     scene.add(bannerGroup);
