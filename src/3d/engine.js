@@ -7,7 +7,9 @@
 
 import {
   texCyberGrid, texCyberWall, texCyberSky, texCyberHorizon,
-  texGlow, texWisp, texCyberCore, texProjectCard, makeTexture, mulberry32, noise2D
+  texGlow, texWisp, texCyberCore, texProjectCard,
+  texTechGlobe, texCodePanel, texPedestalBadge,
+  makeTexture, mulberry32, noise2D
 } from './textures.js';
 import { REAL_PROJECTS, CHAPTERS } from '../data/portfolioData.js';
 
@@ -263,65 +265,153 @@ export function createEngine() {
   }
 
   /* ---------------------------------------------------------------------
-     4 · SCENE 02: THE BUILDER (CODE & CONNECTED 3D NODES)
+     4 · SCENE 02: THE BUILDER — TECH STACK GLOBES + JS CODE PANEL
      --------------------------------------------------------------------- */
   function buildDeveloperScene() {
     const group = new THREE.Group();
     group.position.set(0, 4.5, -24);
 
-    // Floating Terminal Mesh
-    const termGeo = new THREE.BoxGeometry(6.4, 4.0, 0.2);
-    const termMat = new THREE.MeshStandardMaterial({
-      color: 0x081024,
-      metalness: 0.8,
-      roughness: 0.2,
-      emissive: 0x001020,
-      emissiveIntensity: 0.4
+    // ── CENTER PANEL: Glowing JS code editor ──────────────────────────────
+    const panelTex = tex(texCodePanel());
+    const panelW = 7.2, panelH = 4.5;
+    const panelGeo = new THREE.PlaneGeometry(panelW, panelH);
+    const panelMat = new THREE.MeshBasicMaterial({
+      map: panelTex,
+      transparent: true,
+      opacity: 0.92
     });
-    const term = new THREE.Mesh(termGeo, termMat);
-    group.add(term);
+    const panel = new THREE.Mesh(panelGeo, panelMat);
+    panel.position.set(0, 0, 0);
+    group.add(panel);
 
-    // Terminal wire edge
-    const termEdge = new THREE.Mesh(
-      new THREE.BoxGeometry(6.5, 4.1, 0.22),
-      new THREE.MeshBasicMaterial({ color: 0x00f5ff, wireframe: true, transparent: true, opacity: 0.4 })
+    // Neon border frame around the panel
+    const frameMat = new THREE.MeshBasicMaterial({
+      color: 0x00f5ff, wireframe: true, transparent: true, opacity: 0.35
+    });
+    const frame = new THREE.Mesh(
+      new THREE.BoxGeometry(panelW + 0.18, panelH + 0.18, 0.04),
+      frameMat
     );
-    group.add(termEdge);
+    group.add(frame);
+    rotatingObjects.push({ mesh: frame, rz: 0.04 }); // very slow rotation pulse
 
-    // Floating connected tech node spheres (Frontend, Backend, Database, Systems)
-    const nodes = [
-      { name: "Frontend / React / Next.js", color: 0x00f5ff, pos: [-4.2, 1.8, 1.2] },
-      { name: "Backend / Node.js / APIs",   color: 0x7b2ff7, pos: [ 4.2, 1.8, 1.2] },
-      { name: "Databases / MongoDB / Supabase", color: 0x00ffcc, pos: [-3.8, -1.8, 1.5] },
-      { name: "DevOps & Cloud Systems",     color: 0xff4d9d, pos: [ 3.8, -1.8, 1.5] }
+    // Corner accent glow planes
+    const cornerGlowTex = tex(texGlow('rgba(0,245,255,0.9)', 'rgba(123,47,247,0.3)'));
+    [[-panelW / 2, panelH / 2], [panelW / 2, panelH / 2],
+     [-panelW / 2, -panelH / 2], [panelW / 2, -panelH / 2]].forEach(([cx, cy]) => {
+      const g = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.9, 0.9),
+        new THREE.MeshBasicMaterial({
+          map: cornerGlowTex,
+          transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.7
+        })
+      );
+      g.position.set(cx, cy, 0.05);
+      group.add(g);
+    });
+
+    // ── FOUR CORNER TECH-STACK GLOBES ─────────────────────────────────────
+    const TECHS = [
+      {
+        logo: 'react',   name: 'React.js',  sub: 'Frontend Library',
+        color: '#61DAFB', bg0: '#0e2433',   bg1: '#082030',
+        pos: [-4.8,  2.4, 1.4], emissive: 0x61dafb
+      },
+      {
+        logo: 'nextjs',  name: 'Next.js',   sub: 'Full-Stack Framework',
+        color: '#ffffff', bg0: '#1a1a2e',   bg1: '#0f0f1a',
+        pos: [ 4.8,  2.4, 1.4], emissive: 0xffffff
+      },
+      {
+        logo: 'mongo',   name: 'MongoDB',   sub: 'NoSQL Database',
+        color: '#00ED64', bg0: '#062b15',   bg1: '#041c0e',
+        pos: [-4.8, -2.4, 1.4], emissive: 0x00ed64
+      },
+      {
+        logo: 'express', name: 'Express',   sub: 'Node.js Framework',
+        color: '#eeeeee', bg0: '#1a1a1a',   bg1: '#111111',
+        pos: [ 4.8, -2.4, 1.4], emissive: 0xffffff
+      }
     ];
 
-    nodes.forEach(n => {
-      const nodeMesh = new THREE.Mesh(
-        new THREE.SphereGeometry(0.65, 24, 24),
-        new THREE.MeshStandardMaterial({ color: n.color, emissive: n.color, emissiveIntensity: 0.8, roughness: 0.2 })
-      );
-      nodeMesh.position.set(...n.pos);
-      nodeMesh.userData = { isInteractive: true, title: n.name };
-      group.add(nodeMesh);
-      interactiveNodes.push(nodeMesh);
+    TECHS.forEach(t => {
+      const globeTex = tex(texTechGlobe(t));
+      const sphereGeo = new THREE.SphereGeometry(0.82, 32, 32);
+      const sphereMat = new THREE.MeshStandardMaterial({
+        map: globeTex,
+        emissiveMap: globeTex,
+        emissive: new THREE.Color(t.emissive),
+        emissiveIntensity: 0.35,
+        roughness: 0.18,
+        metalness: 0.6
+      });
+      const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+      sphere.position.set(...t.pos);
+      sphere.userData = { isInteractive: true, title: `${t.name} — ${t.sub}` };
+      group.add(sphere);
+      interactiveNodes.push(sphere);
+      // Slow self-rotation so logo stays readable
+      rotatingObjects.push({ mesh: sphere, ry: 0.18 });
 
-      // Connecting conduit line to center terminal
+      // Orbiting ring
+      const ringColor = new THREE.Color(t.emissive);
+      const ringMesh = new THREE.Mesh(
+        new THREE.RingGeometry(1.05, 1.18, 32),
+        new THREE.MeshBasicMaterial({
+          color: ringColor,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 0.65,
+          blending: THREE.AdditiveBlending
+        })
+      );
+      ringMesh.position.set(...t.pos);
+      group.add(ringMesh);
+      rotatingObjects.push({ mesh: ringMesh, rx: 0.55, ry: 0.38 });
+
+      // Glow halo behind sphere
+      const haloTex = tex(texGlow(
+        `rgba(${parseInt(t.color.slice(1,3),16)},${parseInt(t.color.slice(3,5),16)},${parseInt(t.color.slice(5,7),16)},0.8)`,
+        'rgba(5,8,20,0)'
+      ));
+      const halo = new THREE.Mesh(
+        new THREE.PlaneGeometry(2.4, 2.4),
+        new THREE.MeshBasicMaterial({
+          map: haloTex,
+          transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.55
+        })
+      );
+      halo.position.set(t.pos[0], t.pos[1], t.pos[2] - 0.5);
+      group.add(halo);
+
+      // Connection conduit line from globe to panel corner
+      const panelCorner = new THREE.Vector3(
+        t.pos[0] > 0 ? panelW / 2 : -panelW / 2,
+        t.pos[1] > 0 ? panelH / 2 : -panelH / 2,
+        0
+      );
       const lineGeo = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(...n.pos)
+        panelCorner,
+        new THREE.Vector3(...t.pos)
       ]);
-      const lineMat = new THREE.LineBasicMaterial({ color: n.color, transparent: true, opacity: 0.5 });
+      const lineMat = new THREE.LineBasicMaterial({
+        color: new THREE.Color(t.emissive),
+        transparent: true, opacity: 0.45
+      });
       group.add(new THREE.Line(lineGeo, lineMat));
 
-      // Orbiting ring around each node
-      const rMesh = new THREE.Mesh(
-        new THREE.RingGeometry(0.85, 0.95, 24),
-        new THREE.MeshBasicMaterial({ color: n.color, side: THREE.DoubleSide, transparent: true, opacity: 0.6 })
-      );
-      rMesh.position.set(...n.pos);
-      group.add(rMesh);
-      rotatingObjects.push({ mesh: rMesh, rx: 0.4, ry: 0.7 });
+      // Traveling pulse packet along the conduit
+      const pulseGeo = new THREE.SphereGeometry(0.1, 8, 8);
+      const pulseMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(t.emissive) });
+      const pulse = new THREE.Mesh(pulseGeo, pulseMat);
+      pulse.userData = {
+        p1: panelCorner.clone(),
+        p2: new THREE.Vector3(...t.pos),
+        progress: Math.random(),
+        speed: 0.28 + Math.random() * 0.18
+      };
+      group.add(pulse);
+      pulsePackets.push(pulse);
     });
 
     scene.add(group);
@@ -391,57 +481,220 @@ export function createEngine() {
   }
 
   /* ---------------------------------------------------------------------
-     6 · SCENE 04: AI AUTOMATION (LIVING PIPELINE MACHINE & PULSES)
+     6 · SCENE 04: AI AUTOMATION (FRAMEWORK & LIBRARY PIPELINE STATIONS)
      --------------------------------------------------------------------- */
   function buildAutomationScene() {
     const group = new THREE.Group();
     group.position.set(0, 5.0, -88);
 
-    // 6 pipeline station hubs: INPUT -> AI -> DECISION -> AUTOMATION -> DB -> OUTPUT
-    const stationNames = ["INPUT", "AI COGNITION", "DECISION", "AUTOMATION", "DATABASE", "OUTPUT"];
-    const stationColors = [0x00f5ff, 0x7b2ff7, 0xff4d9d, 0x00ffcc, 0x00f5ff, 0x7b2ff7];
-    const stations = [];
+    // 6 pipeline framework & library tech stations
+    const STATIONS = [
+      {
+        step: "01",
+        pipeline: "INPUT",
+        name: "React.js",
+        sub: "Frontend Library",
+        logo: "react",
+        color: "#61DAFB",
+        bg0: "#0b2636",
+        bg1: "#061520",
+        emissive: 0x61dafb
+      },
+      {
+        step: "02",
+        pipeline: "STYLING",
+        name: "Tailwind CSS",
+        sub: "CSS Framework",
+        logo: "tailwind",
+        color: "#38BDF8",
+        bg0: "#08273d",
+        bg1: "#041420",
+        emissive: 0x38bdf8
+      },
+      {
+        step: "03",
+        pipeline: "FULL-STACK",
+        name: "Next.js",
+        sub: "Full-Stack App",
+        logo: "nextjs",
+        color: "#FFFFFF",
+        bg0: "#1a1a2e",
+        bg1: "#0c0c16",
+        emissive: 0xffffff
+      },
+      {
+        step: "04",
+        pipeline: "RUNTIME",
+        name: "Node.js",
+        sub: "JavaScript Engine",
+        logo: "nodejs",
+        color: "#339933",
+        bg0: "#0b2612",
+        bg1: "#051609",
+        emissive: 0x339933
+      },
+      {
+        step: "05",
+        pipeline: "STORAGE",
+        name: "MongoDB",
+        sub: "NoSQL Database",
+        logo: "mongo",
+        color: "#00ED64",
+        bg0: "#082b15",
+        bg1: "#04170b",
+        emissive: 0x00ed64
+      },
+      {
+        step: "06",
+        pipeline: "3D VISUAL",
+        name: "Three.js",
+        sub: "3D WebGL Library",
+        logo: "threejs",
+        color: "#00F5FF",
+        bg0: "#072636",
+        bg1: "#03141f",
+        emissive: 0x00f5ff
+      }
+    ];
 
-    const startX = -8.0, stepX = 3.2;
-    stationNames.forEach((name, i) => {
+    const stations = [];
+    const startX = -8.5, stepX = 3.4;
+
+    STATIONS.forEach((st, i) => {
       const x = startX + i * stepX;
-      const y = Math.sin(i * 0.8) * 1.2;
-      const z = (i % 2 === 0 ? 1 : -1) * 1.5;
+      // Parabolic arch curve
+      const y = Math.sin((i / (STATIONS.length - 1)) * Math.PI) * 1.5;
+      const z = (i % 2 === 0 ? 1 : -1) * 0.8;
       const pos = new THREE.Vector3(x, y, z);
       stations.push(pos);
 
-      // Station Hub Base
-      const hub = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.8, 1.0, 0.4, 24),
-        new THREE.MeshStandardMaterial({ color: 0x081228, metalness: 0.9, roughness: 0.2, emissive: stationColors[i], emissiveIntensity: 0.5 })
+      // Station Hub Pedestal Base
+      const hubBase = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.85, 1.15, 0.45, 24),
+        new THREE.MeshStandardMaterial({
+          color: 0x081228,
+          metalness: 0.85,
+          roughness: 0.25,
+          emissive: new THREE.Color(st.emissive),
+          emissiveIntensity: 0.4
+        })
       );
-      hub.position.copy(pos);
-      group.add(hub);
+      hubBase.position.copy(pos);
+      group.add(hubBase);
 
-      // Luminous Core
-      const hubCore = new THREE.Mesh(
-        new THREE.SphereGeometry(0.45, 16, 16),
-        new THREE.MeshBasicMaterial({ color: stationColors[i] })
+      // Pedestal Glowing Rim Ring
+      const rim = new THREE.Mesh(
+        new THREE.RingGeometry(0.86, 0.98, 24),
+        new THREE.MeshBasicMaterial({
+          color: new THREE.Color(st.emissive),
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 0.75,
+          blending: THREE.AdditiveBlending
+        })
       );
-      hubCore.position.set(pos.x, pos.y + 0.4, pos.z);
-      group.add(hubCore);
-      interactiveNodes.push(hubCore);
+      rim.rotation.x = Math.PI / 2;
+      rim.position.set(pos.x, pos.y + 0.23, pos.z);
+      group.add(rim);
+
+      // Rotating Tech Stack Globe on top of pedestal (2-part texture: front and back logos)
+      const globeTex = tex(texTechGlobe(st));
+      const globeGeo = new THREE.SphereGeometry(0.68, 32, 32);
+      const globeMat = new THREE.MeshStandardMaterial({
+        map: globeTex,
+        emissiveMap: globeTex,
+        emissive: new THREE.Color(st.emissive),
+        emissiveIntensity: 0.35,
+        roughness: 0.2,
+        metalness: 0.6
+      });
+      const globe = new THREE.Mesh(globeGeo, globeMat);
+      globe.position.set(pos.x, pos.y + 0.85, pos.z);
+      globe.userData = {
+        isInteractive: true,
+        title: `STATION ${st.step} // ${st.name} (${st.sub}) — ${st.pipeline}`
+      };
+      group.add(globe);
+      interactiveNodes.push(globe);
+      // Gentle rotation around Y axis — both opposite sides have the logo!
+      rotatingObjects.push({ mesh: globe, ry: 0.2 });
+
+      // Orbiting Neon Ring around the globe
+      const ringMesh = new THREE.Mesh(
+        new THREE.RingGeometry(0.92, 1.02, 32),
+        new THREE.MeshBasicMaterial({
+          color: new THREE.Color(st.emissive),
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 0.65,
+          blending: THREE.AdditiveBlending
+        })
+      );
+      ringMesh.position.set(pos.x, pos.y + 0.85, pos.z);
+      ringMesh.rotation.x = Math.PI / 3.5;
+      group.add(ringMesh);
+      rotatingObjects.push({ mesh: ringMesh, rx: 0.45, ry: 0.32 });
+
+      // Glow halo behind globe
+      const haloTex = tex(texGlow(
+        `rgba(${parseInt(st.color.slice(1,3),16)},${parseInt(st.color.slice(3,5),16)},${parseInt(st.color.slice(5,7),16)},0.75)`,
+        'rgba(5,8,20,0)'
+      ));
+      const halo = new THREE.Mesh(
+        new THREE.PlaneGeometry(2.1, 2.1),
+        new THREE.MeshBasicMaterial({
+          map: haloTex,
+          transparent: true,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+          opacity: 0.5
+        })
+      );
+      halo.position.set(pos.x, pos.y + 0.85, pos.z - 0.4);
+      group.add(halo);
+
+      // Floating Holographic HUD Badge above each pedestal
+      const badgeCanvas = texPedestalBadge(st.step, st.name, st.sub, st.color);
+      const badgeTex = tex(badgeCanvas);
+      const badgeMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(2.2, 0.6),
+        new THREE.MeshBasicMaterial({
+          map: badgeTex,
+          transparent: true,
+          opacity: 0.92,
+          side: THREE.DoubleSide
+        })
+      );
+      badgeMesh.position.set(pos.x, pos.y + 1.9, pos.z);
+      badgeMesh.userData = {
+        isInteractive: true,
+        title: `${st.step} // ${st.name} — ${st.sub}`
+      };
+      group.add(badgeMesh);
+      interactiveNodes.push(badgeMesh);
     });
 
-    // Conduit connecting lines
+    // Conduit connecting lines across pipeline arc
     for (let i = 0; i < stations.length - 1; i++) {
-      const p1 = stations[i];
-      const p2 = stations[i + 1];
+      const p1 = new THREE.Vector3(stations[i].x, stations[i].y + 0.85, stations[i].z);
+      const p2 = new THREE.Vector3(stations[i + 1].x, stations[i + 1].y + 0.85, stations[i + 1].z);
       const lineGeo = new THREE.BufferGeometry().setFromPoints([p1, p2]);
-      const lineMat = new THREE.LineBasicMaterial({ color: 0x00f5ff, transparent: true, opacity: 0.4 });
+      const lineMat = new THREE.LineBasicMaterial({
+        color: new THREE.Color(STATIONS[i].emissive),
+        transparent: true,
+        opacity: 0.5
+      });
       group.add(new THREE.Line(lineGeo, lineMat));
 
-      // Animated traveling data packet
+      // Animated traveling data packet along conduit
       const packet = new THREE.Mesh(
-        new THREE.SphereGeometry(0.22, 12, 12),
-        new THREE.MeshBasicMaterial({ color: 0xffffff, blending: THREE.AdditiveBlending })
+        new THREE.SphereGeometry(0.18, 12, 12),
+        new THREE.MeshBasicMaterial({
+          color: 0xffffff,
+          blending: THREE.AdditiveBlending
+        })
       );
-      packet.userData = { p1, p2, progress: i * 0.18, speed: 0.35 + i * 0.05 };
+      packet.userData = { p1, p2, progress: i * 0.18, speed: 0.32 + i * 0.04 };
       group.add(packet);
       pulsePackets.push(packet);
     }

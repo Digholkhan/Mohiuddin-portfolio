@@ -211,6 +211,372 @@ export function texProjectCard(title, category, color = '#00f5ff') {
   return c;
 }
 
+/* 9. Tech Stack Globe Texture — draws logo + name on BOTH hemispheres (front & back) so it is always visible from all angles */
+export function texTechGlobe(tech) {
+  const W = 1024, H = 512, c = cvs(W, H), x = c.getContext('2d');
+
+  // Deep dark cyber background fill
+  x.fillStyle = '#050814';
+  x.fillRect(0, 0, W, H);
+
+  // Helper to draw a complete tech hemisphere (logo, rings, grid, name, sub) at (cx, cy)
+  function drawHemisphere(cx, cy) {
+    // 1. Radial gradient core seamlessly filling the hemisphere tile
+    const bg = x.createRadialGradient(cx, cy, 20, cx, cy, 320);
+    bg.addColorStop(0, tech.bg0 || '#0e2433');
+    bg.addColorStop(0.6, tech.bg1 || '#082030');
+    bg.addColorStop(1, '#050814');
+    x.fillStyle = bg;
+    x.fillRect(cx - 256, 0, 512, H);
+
+    // 2. Latitude / longitude cyber grid lines
+    x.strokeStyle = `${tech.color}24`;
+    x.lineWidth = 1.3;
+    for (let i = 1; i <= 6; i++) {
+      x.beginPath();
+      x.arc(cx, cy, 240 * (i * 0.16), 0, TAU);
+      x.stroke();
+    }
+    for (let a = 0; a < TAU; a += Math.PI / 6) {
+      x.beginPath();
+      x.moveTo(cx + Math.cos(a) * 16, cy + Math.sin(a) * 16);
+      x.lineTo(cx + Math.cos(a) * 230, cy + Math.sin(a) * 230);
+      x.stroke();
+    }
+
+    // 3. Glowing perimeter aura
+    const ring = x.createRadialGradient(cx, cy, 130, cx, cy, 245);
+    ring.addColorStop(0, 'rgba(0,0,0,0)');
+    ring.addColorStop(0.6, `${tech.color}14`);
+    ring.addColorStop(1, `${tech.color}44`);
+    x.fillStyle = ring;
+    x.fillRect(cx - 256, 0, 512, H);
+
+    // 4. Logo drawing at (cx, cy - 42)
+    x.save();
+    x.translate(cx, cy - 42);
+    x.scale(1.8, 1.8);
+    x.fillStyle = tech.color;
+    x.strokeStyle = tech.color;
+
+    const logo = tech.logo;
+    if (logo === 'react') {
+      // React atom icon
+      x.lineWidth = 4.5;
+      x.strokeStyle = '#61DAFB';
+      x.fillStyle = '#61DAFB';
+      x.beginPath(); x.arc(0, 0, 7.5, 0, TAU); x.fill();
+      const angles = [0, Math.PI / 3, -Math.PI / 3];
+      angles.forEach(angle => {
+        x.save();
+        x.rotate(angle);
+        x.beginPath();
+        x.ellipse(0, 0, 35, 12, 0, 0, TAU);
+        x.stroke();
+        x.restore();
+      });
+    } else if (logo === 'nextjs') {
+      // Next.js "N" lettermark
+      x.fillStyle = '#ffffff';
+      x.font = 'bold 58px sans-serif';
+      x.textAlign = 'center';
+      x.textBaseline = 'middle';
+      x.fillText('N', 0, 0);
+      x.fillStyle = tech.color || '#ffffff';
+      x.beginPath();
+      x.moveTo(15, -12); x.lineTo(34, 20); x.lineTo(34, -12);
+      x.fill();
+    } else if (logo === 'tailwind') {
+      // Tailwind CSS fluid waves
+      x.fillStyle = '#38BDF8';
+      // Upper wave
+      x.beginPath();
+      x.moveTo(-24, -8);
+      x.bezierCurveTo(-18, -24, -4, -24, 2, -12);
+      x.bezierCurveTo(6, -4, 10, 0, 18, 0);
+      x.bezierCurveTo(24, 0, 28, -6, 28, -12);
+      x.bezierCurveTo(22, 2, 8, 2, 2, -8);
+      x.bezierCurveTo(-2, -16, -6, -20, -14, -20);
+      x.bezierCurveTo(-20, -20, -24, -14, -24, -8);
+      x.closePath();
+      x.fill();
+      // Lower wave
+      x.beginPath();
+      x.moveTo(-12, 12);
+      x.bezierCurveTo(-6, -4, 8, -4, 14, 6);
+      x.bezierCurveTo(18, 14, 22, 18, 30, 18);
+      x.bezierCurveTo(36, 18, 40, 12, 40, 6);
+      x.bezierCurveTo(34, 22, 20, 22, 14, 12);
+      x.bezierCurveTo(10, 4, 6, 0, -2, 0);
+      x.bezierCurveTo(-8, 0, -12, 6, -12, 12);
+      x.closePath();
+      x.fill();
+    } else if (logo === 'nodejs') {
+      // Node.js hexagon
+      x.strokeStyle = '#339933';
+      x.lineWidth = 5.5;
+      x.fillStyle = 'rgba(51,153,51,0.22)';
+      x.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const a = (i * Math.PI) / 3 - Math.PI / 6;
+        if (i === 0) x.moveTo(Math.cos(a) * 32, Math.sin(a) * 32);
+        else x.lineTo(Math.cos(a) * 32, Math.sin(a) * 32);
+      }
+      x.closePath(); x.fill(); x.stroke();
+      x.fillStyle = '#339933';
+      x.font = 'bold 21px monospace';
+      x.textAlign = 'center';
+      x.textBaseline = 'middle';
+      x.fillText('js', 0, 0);
+    } else if (logo === 'mongo') {
+      // MongoDB leaf
+      x.fillStyle = '#00ED64';
+      x.beginPath();
+      x.moveTo(0, -36);
+      x.bezierCurveTo(24, -22, 26, 8, 0, 36);
+      x.bezierCurveTo(-26, 8, -24, -22, 0, -36);
+      x.fill();
+      x.fillStyle = '#ffffff';
+      x.fillRect(-2.5, 6, 5, 28);
+    } else if (logo === 'express') {
+      // Express "e." wordmark
+      x.fillStyle = '#ffffff';
+      x.font = 'bold 50px monospace';
+      x.textAlign = 'center';
+      x.textBaseline = 'middle';
+      x.fillText('e.', 0, 0);
+      x.fillStyle = tech.color;
+      x.fillRect(-28, 24, 56, 3);
+    } else if (logo === 'threejs') {
+      // Three.js wireframe deltahedron
+      x.strokeStyle = '#00F5FF';
+      x.lineWidth = 3.8;
+      x.beginPath();
+      x.moveTo(0, -32);
+      x.lineTo(28, 22);
+      x.lineTo(-28, 22);
+      x.closePath();
+      x.stroke();
+      x.beginPath();
+      x.moveTo(0, -32); x.lineTo(0, 10);
+      x.moveTo(28, 22); x.lineTo(0, 10);
+      x.moveTo(-28, 22); x.lineTo(0, 10);
+      x.stroke();
+      x.fillStyle = '#ffffff';
+      x.beginPath(); x.arc(0, 10, 4, 0, TAU); x.fill();
+    } else if (logo === 'n8n') {
+      // n8n workflow nodes
+      x.fillStyle = '#EA4B71';
+      x.strokeStyle = '#EA4B71';
+      x.lineWidth = 4.5;
+      x.beginPath(); x.arc(-18, -10, 8, 0, TAU); x.fill();
+      x.beginPath(); x.arc(18, -10, 8, 0, TAU); x.fill();
+      x.beginPath(); x.arc(0, 16, 8, 0, TAU); x.fill();
+      x.beginPath();
+      x.moveTo(-18, -10); x.lineTo(0, 16); x.lineTo(18, -10);
+      x.stroke();
+    } else if (logo === 'supabase') {
+      // Supabase lightning
+      x.fillStyle = '#3ECF8E';
+      x.beginPath();
+      x.moveTo(3, -32);
+      x.lineTo(-18, 4);
+      x.lineTo(-2, 4);
+      x.lineTo(-3, 32);
+      x.lineTo(18, -4);
+      x.lineTo(2, -4);
+      x.closePath();
+      x.fill();
+    }
+    x.restore();
+
+    // 5. Tech name label
+    x.fillStyle = '#ffffff';
+    x.font = 'bold 36px "Courier New", monospace';
+    x.textAlign = 'center';
+    x.textBaseline = 'middle';
+    x.shadowColor = tech.color;
+    x.shadowBlur = 18;
+    x.fillText(tech.name, cx, cy + 76);
+    x.shadowBlur = 0;
+
+    // 6. Subtitle
+    x.fillStyle = `${tech.color}dd`;
+    x.font = '20px "Courier New", monospace';
+    x.fillText(tech.sub, cx, cy + 112);
+  }
+
+  // Draw on BOTH hemispheres (u = 0.25 and u = 0.75, 180 degrees opposite)
+  drawHemisphere(W * 0.25, H * 0.5); // Front hemisphere (facing camera)
+  drawHemisphere(W * 0.75, H * 0.5); // Back hemisphere (opposite side)
+
+  return c;
+}
+
+/* 9b. Pedestal Holographic HUD Badge Texture — for pipeline & tech stations */
+export function texPedestalBadge(step, name, sub, color = '#00f5ff') {
+  const W = 512, H = 140, c = cvs(W, H), x = c.getContext('2d');
+  // Cyber dark translucent background
+  x.fillStyle = '#060c1c';
+  x.fillRect(0, 0, W, H);
+
+  // Border with accent corners
+  x.strokeStyle = `${color}44`;
+  x.lineWidth = 2;
+  x.strokeRect(4, 4, W - 8, H - 8);
+
+  // Top neon accent bar
+  x.fillStyle = color;
+  x.fillRect(4, 4, W - 8, 4);
+
+  // Corner brackets
+  const L = 16;
+  x.strokeStyle = color;
+  x.lineWidth = 3;
+  // Top left
+  x.beginPath(); x.moveTo(4, 4 + L); x.lineTo(4, 4); x.lineTo(4 + L, 4); x.stroke();
+  // Top right
+  x.beginPath(); x.moveTo(W - 4 - L, 4); x.lineTo(W - 4, 4); x.lineTo(W - 4, 4 + L); x.stroke();
+  // Bottom left
+  x.beginPath(); x.moveTo(4, H - 4 - L); x.lineTo(4, H - 4); x.lineTo(4 + L, H - 4); x.stroke();
+  // Bottom right
+  x.beginPath(); x.moveTo(W - 4 - L, H - 4); x.lineTo(W - 4, H - 4); x.lineTo(W - 4, H - 4 - L); x.stroke();
+
+  // Step badge
+  x.fillStyle = `${color}22`;
+  x.fillRect(18, 20, 68, 42);
+  x.strokeStyle = color;
+  x.lineWidth = 1.5;
+  x.strokeRect(18, 20, 68, 42);
+
+  x.fillStyle = color;
+  x.font = 'bold 22px monospace';
+  x.textAlign = 'center';
+  x.textBaseline = 'middle';
+  x.fillText(step, 52, 41);
+
+  // Main framework / library name
+  x.fillStyle = '#ffffff';
+  x.font = 'bold 34px "Courier New", monospace';
+  x.textAlign = 'left';
+  x.shadowColor = color;
+  x.shadowBlur = 12;
+  x.fillText(name.toUpperCase(), 102, 42);
+  x.shadowBlur = 0;
+
+  // Subtitle / category
+  x.fillStyle = `${color}cc`;
+  x.font = '19px "Courier New", monospace';
+  x.fillText(sub.toUpperCase(), 102, 94);
+
+  // Glowing status pulse dot
+  x.fillStyle = '#00ff66';
+  x.shadowColor = '#00ff66';
+  x.shadowBlur = 8;
+  x.beginPath(); x.arc(W - 32, 42, 6, 0, TAU); x.fill();
+  x.shadowBlur = 0;
+
+  return c;
+}
+
+/* 10. JS Code Panel Texture — glowing code editor display */
+export function texCodePanel() {
+  const W = 768, H = 480, c = cvs(W, H), x = c.getContext('2d');
+
+  // Dark editor background
+  x.fillStyle = '#060c1e';
+  x.fillRect(0, 0, W, H);
+
+  // Subtle grid
+  x.strokeStyle = 'rgba(0,245,255,0.04)';
+  x.lineWidth = 1;
+  for (let i = 0; i < W; i += 32) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, H); x.stroke(); }
+  for (let j = 0; j < H; j += 32) { x.beginPath(); x.moveTo(0, j); x.lineTo(W, j); x.stroke(); }
+
+  // Title bar
+  const titleBar = x.createLinearGradient(0, 0, W, 0);
+  titleBar.addColorStop(0, 'rgba(0,245,255,0.15)');
+  titleBar.addColorStop(1, 'rgba(123,47,247,0.1)');
+  x.fillStyle = titleBar;
+  x.fillRect(0, 0, W, 38);
+  // Traffic lights
+  [[20, '#ff5f57'], [46, '#febc2e'], [72, '#28c840']].forEach(([cx, col]) => {
+    x.fillStyle = col;
+    x.beginPath(); x.arc(cx, 19, 7, 0, TAU); x.fill();
+  });
+  x.fillStyle = '#8e9db5';
+  x.font = '14px "Courier New", monospace';
+  x.textAlign = 'center';
+  x.fillText('passion.js — MD MOHIUDDIN', W / 2, 24);
+
+  // Line number gutter
+  x.fillStyle = 'rgba(0,0,0,0.3)';
+  x.fillRect(0, 38, 44, H - 38);
+  x.strokeStyle = 'rgba(0,245,255,0.12)';
+  x.lineWidth = 1;
+  x.beginPath(); x.moveTo(44, 38); x.lineTo(44, H); x.stroke();
+
+  // Code lines: [lineNum, color, text]
+  const lines = [
+    [1,  '#7b2ff7',   '// 🚀 Passion-driven code by Md Mohiuddin'],
+    [2,  '#565f73',   ''],
+    [3,  '#ff4d9d',   'const passion = {'],
+    [4,  '#00f5ff',   '  mission:   "Build. Automate. Teach.",'],
+    [5,  '#00ffcc',   '  stack:     ["React", "Next.js", "Node.js",'],
+    [6,  '#00ffcc',   '              "MongoDB", "Express", "AI"],'],
+    [7,  '#ffaa00',   '  philosophy: "Technology is a craft.",'],
+    [8,  '#00f5ff',   '  driven_by:  "Curiosity + Purpose",'],
+    [9,  '#ff4d9d',   '};'],
+    [10, '#565f73',   ''],
+    [11, '#7b2ff7',   'async function buildFuture(idea) {'],
+    [12, '#8e9db5',   '  await learn(idea);'],
+    [13, '#8e9db5',   '  await build(idea);'],
+    [14, '#8e9db5',   '  await teach(idea);'],
+    [15, '#00f5ff',   '  return impact; // ∞'],
+    [16, '#7b2ff7',   '}'],
+  ];
+
+  const lineH = 25, startY = 60;
+  lines.forEach(([num, color, code]) => {
+    const y = startY + (num - 1) * lineH;
+    // Line number
+    x.fillStyle = '#3d4d6a';
+    x.font = '13px "Courier New", monospace';
+    x.textAlign = 'right';
+    x.fillText(num, 38, y + 13);
+    // Code
+    if (code) {
+      x.fillStyle = color;
+      x.textAlign = 'left';
+      x.font = '14px "Courier New", monospace';
+      x.shadowColor = color;
+      x.shadowBlur = 4;
+      x.fillText(code, 54, y + 13);
+      x.shadowBlur = 0;
+    }
+  });
+
+  // Blinking cursor at line 17
+  x.fillStyle = '#00f5ff';
+  x.fillRect(54, startY + 16 * lineH, 9, 18);
+
+  // Bottom status bar
+  const statusBar = x.createLinearGradient(0, 0, W, 0);
+  statusBar.addColorStop(0, 'rgba(0,245,255,0.2)');
+  statusBar.addColorStop(1, 'rgba(123,47,247,0.15)');
+  x.fillStyle = statusBar;
+  x.fillRect(0, H - 28, W, 28);
+  x.fillStyle = '#00f5ff';
+  x.font = '12px "Courier New", monospace';
+  x.textAlign = 'left';
+  x.fillText('● JS  UTF-8  LF  ◈ passion.js  Ln 17, Col 1', 12, H - 9);
+  x.textAlign = 'right';
+  x.fillStyle = '#7b2ff7';
+  x.fillText('Full-Stack Developer ◆ AI Automation ◆ Mentor', W - 12, H - 9);
+
+  return c;
+}
+
 /* Helper to convert canvas to Three Texture */
 export function makeTexture(THREE, canvasEl, opt = {}) {
   const t = new THREE.CanvasTexture(canvasEl);
