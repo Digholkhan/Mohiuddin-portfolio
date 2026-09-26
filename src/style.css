@@ -18,6 +18,7 @@
   --border-subtle: rgba(0, 245, 255, 0.18);
   --font-main: 'Onest', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: 'Courier New', Consolas, monospace;
+  --chapter-accent: #00f5ff; /* Updated dynamically per chapter */
 }
 
 *,
@@ -33,7 +34,9 @@ html {
   background: var(--bg);
   color: var(--text-main);
   font-family: var(--font-main);
-  scroll-behavior: smooth;
+  /* scroll-behavior is intentionally NOT 'smooth' here — navigation is
+     handled programmatically via window.scrollTo({behavior:'smooth'}) */
+  scroll-behavior: auto;
   overflow-x: hidden;
 }
 
@@ -47,13 +50,13 @@ body {
 
 body.is-locked {
   overflow: hidden;
-  height: 100vh;
 }
 
 /* ---------------------------------------------------------------------
    1 · THREE.JS STAGE & VIEWPORT OVERLAYS
    --------------------------------------------------------------------- */
 #gl {
+  pointer-events: none; /* Let scroll/wheel pass through to the page */
   position: fixed;
   top: 0;
   left: 0;
@@ -266,9 +269,9 @@ body.is-locked {
 
 .nav-link.on {
   color: #fff;
-  border-color: var(--cyan);
+  border-color: var(--chapter-accent, var(--cyan));
   background: rgba(0, 245, 255, 0.12);
-  box-shadow: 0 0 10px rgba(0, 245, 255, 0.2);
+  box-shadow: 0 0 14px rgba(0, 245, 255, 0.28);
 }
 
 .nav-controls {
@@ -370,7 +373,14 @@ body.is-locked {
 }
 
 .m-link:hover {
-  color: var(--cyan);
+  color: var(--chapter-accent, var(--cyan));
+}
+
+.m-link.on {
+  color: #fff;
+  border-left: 3px solid var(--chapter-accent, var(--cyan));
+  background: rgba(0, 245, 255, 0.1);
+  padding-left: 1.4rem;
 }
 
 /* HUD Tracker */
@@ -414,9 +424,9 @@ body.is-locked {
   left: 0;
   bottom: 0;
   width: 0%;
-  background: var(--cyan);
-  box-shadow: 0 0 8px var(--cyan);
-  transition: width 0.15s ease;
+  background: var(--chapter-accent, var(--cyan));
+  box-shadow: 0 0 10px var(--chapter-accent, var(--cyan));
+  transition: width 0.15s ease, background 0.4s ease;
 }
 
 /* ---------------------------------------------------------------------
@@ -457,7 +467,7 @@ body.is-locked {
 }
 
 .ch-inner.rv-in {
-  opacity: 0.8;
+  opacity: 0.96;
   transform: translateY(0);
 }
 

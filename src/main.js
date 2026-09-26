@@ -16,28 +16,66 @@ import { mulberry32 } from './3d/textures.js';
   let anchors = [];
   let maxScroll = 1;
 
+  const CHAPTER_COLORS = [
+    '#00f5ff', // 01 Genesis
+    '#38bdf8', // 02 Builder
+    '#b347ff', // 03 AI Core
+    '#00ffaa', // 04 Automation
+    '#ff9f1c', // 05 DevOps
+    '#ff2a85', // 06 Mentor Lab
+    '#10b981', // 07 CS
+    '#60a5fa', // 08 Projects
+    '#a78bfa', // 09 Constellation
+    '#fb7185', // 10 Philosophy
+    '#00f5ff'  // 11 Horizon
+  ];
+
   /* Viewport measurements */
   function measure() {
     sections = Array.from(document.querySelectorAll('.chapter-section'));
+    if (!sections.length) return;
+
     maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
+
     anchors = sections.map((el, i) => {
       if (i === 0) return 0;
       if (i === sections.length - 1) return maxScroll;
-      return Math.min(Math.max(el.offsetTop + el.offsetHeight * 0.5 - window.innerHeight * 0.5, 0), maxScroll);
+      // Target scroll position centers the chapter section nicely in the viewport
+      const target = el.offsetTop + (el.offsetHeight * 0.5) - (window.innerHeight * 0.5);
+      return Math.min(Math.max(target, 0), maxScroll);
     });
+
+    // Ensure strictly increasing anchor values
     for (let i = 1; i < anchors.length; i++) {
-      anchors[i] = Math.max(anchors[i], anchors[i - 1] + 1);
+      if (anchors[i] <= anchors[i - 1]) {
+        anchors[i] = anchors[i - 1] + 20;
+      }
+    }
+    // Make sure the last anchor is at maxScroll
+    anchors[anchors.length - 1] = maxScroll;
+    for (let i = anchors.length - 2; i >= 0; i--) {
+      if (anchors[i] >= anchors[i + 1]) {
+        anchors[i] = Math.max(0, anchors[i + 1] - 20);
+      }
     }
   }
 
   function getScrollProgress(scrollY) {
+    if (!anchors || anchors.length !== sections.length || maxScroll <= 10) {
+      measure();
+    }
     if (scrollY <= anchors[0]) return 0;
-    for (let i = 0; i < anchors.length - 1; i++) {
+    const lastIdx = anchors.length - 1;
+    if (scrollY >= anchors[lastIdx]) return lastIdx;
+
+    for (let i = 0; i < lastIdx; i++) {
       if (scrollY <= anchors[i + 1]) {
-        return i + (scrollY - anchors[i]) / (anchors[i + 1] - anchors[i]);
+        const segLen = anchors[i + 1] - anchors[i];
+        if (segLen <= 0) return i;
+        return i + (scrollY - anchors[i]) / segLen;
       }
     }
-    return anchors.length - 1;
+    return lastIdx;
   }
 
   /* 1. Procedural Film Grain Noise */
@@ -153,6 +191,32 @@ import { mulberry32 } from './3d/textures.js';
     const hudName = document.getElementById('hud-name');
     const hudFill = document.getElementById('hud-fill');
 
+    function updateHUDAndNav(prog) {
+      // Use floor with a slight forward-bias (0.4 into a section triggers the next)
+      // This prevents the HUD rapidly toggling at the half-way boundary
+      const curIdx = Math.min(Math.max(Math.floor(prog + 0.5), 0), CHAPTERS.length - 1);
+      const chapter = CHAPTERS[curIdx];
+      const accent = CHAPTER_COLORS[curIdx] || '#00f5ff';
+
+      // Dynamic chapter accent color
+      document.documentElement.style.setProperty('--chapter-accent', accent);
+
+      // Update Nav buttons (desktop)
+      document.querySelectorAll('.nav-link').forEach((b, i) => {
+        b.classList.toggle('on', i === curIdx);
+      });
+
+      // Update Mobile Nav buttons
+      document.querySelectorAll('.m-link').forEach((b, i) => {
+        b.classList.toggle('on', i === curIdx);
+      });
+
+      // Update HUD tracker
+      if (hudIdx) hudIdx.textContent = `CHAPTER ${String(curIdx + 1).padStart(2, '0')} / 11`;
+      if (hudName) hudName.textContent = chapter.title.split('//')[1]?.trim() || chapter.label.toUpperCase();
+      if (hudFill) hudFill.style.width = `${(prog / (CHAPTERS.length - 1)) * 100}%`;
+    }
+
     // Scroll listener updates HUD & 3D camera
     window.addEventListener('scroll', () => {
       const sy = window.scrollY || 0;
@@ -161,19 +225,7 @@ import { mulberry32 } from './3d/textures.js';
       const prog = getScrollProgress(sy);
       if (engine) engine.setProgress(prog);
 
-      // Current chapter index
-      const curIdx = Math.min(Math.round(prog), CHAPTERS.length - 1);
-      const chapter = CHAPTERS[curIdx];
-
-      // Update Nav buttons
-      document.querySelectorAll('.nav-link').forEach((b, i) => {
-        b.classList.toggle('on', i === curIdx);
-      });
-
-      // Update HUD tracker
-      if (hudIdx) hudIdx.textContent = `CHAPTER ${String(curIdx + 1).padStart(2, '0')} / 11`;
-      if (hudName) hudName.textContent = chapter.title.split('//')[1]?.trim() || chapter.label.toUpperCase();
-      if (hudFill) hudFill.style.width = `${(prog / (CHAPTERS.length - 1)) * 100}%`;
+      updateHUDAndNav(prog);
     }, { passive: true });
 
     // Handle clicks on any navigation element
@@ -181,7 +233,7 @@ import { mulberry32 } from './3d/textures.js';
       btn.addEventListener('click', e => {
         e.preventDefault();
         const targetIdx = parseInt(btn.getAttribute('data-nav'), 10);
-        if (isNaN(targetIdx)) return;
+        if (isNaN(targetIdx) || targetIdx < 0 || targetIdx >= CHAPTERS.length) return;
 
         audio.playTransition();
 
@@ -191,10 +243,12 @@ import { mulberry32 } from './3d/textures.js';
           if (burger) burger.innerHTML = '<i></i><i></i>';
         }
 
-        // Smooth scroll to chapter element
-        if (sections[targetIdx]) {
-          sections[targetIdx].scrollIntoView({ behavior: 'smooth' });
-        }
+        measure();
+        const targetY = anchors[targetIdx] !== undefined ? anchors[targetIdx] : 0;
+        window.scrollTo({
+          top: targetY,
+          behavior: 'smooth'
+        });
 
         if (engine) {
           engine.flyToChapter(targetIdx);
@@ -275,6 +329,14 @@ import { mulberry32 } from './3d/textures.js';
         setTimeout(() => {
           pre.classList.add('done');
           document.body.classList.remove('is-locked');
+          measure();
+          const sy = window.scrollY || 0;
+          const prog = getScrollProgress(sy);
+          if (engine) engine.setProgress(prog);
+
+          // Reveal hero section immediately
+          document.querySelector('#hero [data-rv]')?.classList.add('rv-in');
+
           if (engine) engine.triggerIntro();
         }, 360);
       }
@@ -302,6 +364,12 @@ import { mulberry32 } from './3d/textures.js';
       measure();
       if (engine) engine.onResize();
     }, { passive: true });
+
+    window.addEventListener('load', () => {
+      measure();
+      const sy = window.scrollY || 0;
+      if (engine) engine.setProgress(getScrollProgress(sy));
+    });
 
     // Start preloader immediately
     bootPreloader();

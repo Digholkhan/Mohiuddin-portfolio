@@ -37,7 +37,10 @@ export function createEngine() {
   const uT = { value: 0 };
   const WORLD = { uT, haze: [], dataStreams: [] };
   const WISPS = { list: [], next: 0, pts: null, geom: null, pos: null, aA: null, aS: null };
-  const RIG   = { prog: 0, smooth: 0, mx: 0, my: 0, tmx: 0, tmy: 0, intro: 0, targetProg: null };
+  // RIG.prog   — target chapter index (float 0-10), driven by scroll or nav click
+  // RIG.smooth — currently interpolated chapter index for camera
+  // RIG.targetProg — set by flyToChapter() nav click; cleared once arrived
+  const RIG = { prog: 0, smooth: 0, mx: 0, my: 0, tmx: 0, tmy: 0, intro: 0, targetProg: null, _navActive: false };
 
   let curveP, curveT, _p, _t, _d;
   let raycaster, mouseNorm;
@@ -990,16 +993,16 @@ export function createEngine() {
     const dt = Math.min(clock.getDelta(), 0.1);
     uT.value += dt;
 
-    // Pulse core
-    if (WORLD.core) WORLD.core.rotation.y += dt * 0.15;
-    if (WORLD.coreRing1) WORLD.coreRing1.rotation.z -= dt * 0.22;
-    if (WORLD.coreRing2) WORLD.coreRing2.rotation.x += dt * 0.18;
+    // Pulse core — slow cinematic speed
+    if (WORLD.core) WORLD.core.rotation.y += dt * 0.06;
+    if (WORLD.coreRing1) WORLD.coreRing1.rotation.z -= dt * 0.08;
+    if (WORLD.coreRing2) WORLD.coreRing2.rotation.x += dt * 0.05;
 
-    // Rotate rotating meshes
+    // Rotate rotating meshes — slowed for cinematic feel
     rotatingObjects.forEach(item => {
-      if (item.rx) item.mesh.rotation.x += dt * item.rx;
-      if (item.ry) item.mesh.rotation.y += dt * item.ry;
-      if (item.rz) item.mesh.rotation.z += dt * item.rz;
+      if (item.rx) item.mesh.rotation.x += dt * item.rx * 0.45;
+      if (item.ry) item.mesh.rotation.y += dt * item.ry * 0.45;
+      if (item.rz) item.mesh.rotation.z += dt * item.rz * 0.45;
     });
 
     // Update automation traveling pulses
@@ -1021,19 +1024,32 @@ export function createEngine() {
 
     updateWisps(dt);
 
-    // Smooth camera progression
+    // -----------------------------------------------------------------------
+    // CAMERA PROGRESSION
+    //
+    // Two modes:
+    //   A) Nav-click fly-to: RIG.targetProg is set; camera glides to chapter.
+    //      Once arrived, we clear targetProg and let scroll take over.
+    //   B) Scroll-driven: camera smoothly follows RIG.prog (set by setProgress).
+    //
+    // The key insight: lerp factor must be gentle (~2x per second) so each
+    // scroll section is individually visible rather than rushed past.
+    // -----------------------------------------------------------------------
     if (RIG.targetProg !== null) {
-      RIG.smooth = lerp(RIG.smooth, RIG.targetProg, clamp(dt * 4.5, 0, 1));
-      if (Math.abs(RIG.smooth - RIG.targetProg) < 0.01) {
+      // Nav-click: cinematic glide to exact chapter index
+      RIG.smooth = lerp(RIG.smooth, RIG.targetProg, clamp(dt * 2.0, 0, 1));
+      if (Math.abs(RIG.smooth - RIG.targetProg) < 0.002) {
         RIG.smooth = RIG.targetProg;
         RIG.targetProg = null;
       }
     } else {
-      RIG.smooth = lerp(RIG.smooth, RIG.prog, clamp(dt * 6.0, 0, 1));
+      // Scroll-driven: gentle follow — alpha ~1.4 means ~75% of the way
+      // in one second, which feels smooth but not instant.
+      RIG.smooth = lerp(RIG.smooth, RIG.prog, clamp(dt * 1.4, 0, 1));
     }
 
-    RIG.mx = lerp(RIG.mx, RIG.tmx, clamp(dt * 4.5, 0, 1));
-    RIG.my = lerp(RIG.my, RIG.tmy, clamp(dt * 4.5, 0, 1));
+    RIG.mx = lerp(RIG.mx, RIG.tmx, clamp(dt * 2.2, 0, 1));
+    RIG.my = lerp(RIG.my, RIG.tmy, clamp(dt * 2.2, 0, 1));
 
     applyCamera();
     renderer.render(scene, camera);
@@ -1049,11 +1065,16 @@ export function createEngine() {
   }
 
   function setProgress(val) {
-    RIG.prog = val;
+    // Clamp to valid range
+    RIG.prog = Math.min(Math.max(val, 0), WAYPOINTS.length - 1);
   }
 
   function flyToChapter(index) {
-    RIG.targetProg = index;
+    const target = Math.min(Math.max(index, 0), WAYPOINTS.length - 1);
+    RIG.targetProg = target;
+    // Also update prog so if user stops scrolling after nav click,
+    // scroll-driven camera won't fight back to the wrong position.
+    RIG.prog = target;
   }
 
   function setPointer(nx, ny) {
