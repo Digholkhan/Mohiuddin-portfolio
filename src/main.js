@@ -305,6 +305,50 @@ import { mulberry32 } from './3d/textures.js';
     }, { passive: true });
   }
 
+  /* 6b. Touch & Gyroscope 3D Parallax for Mobile */
+  function wireTouchAndGyro() {
+    // Touch move: map touch position to 3D parallax (same as mouse)
+    window.addEventListener('touchmove', e => {
+      if (!e.touches || !e.touches[0]) return;
+      const t = e.touches[0];
+      const nx = (t.clientX / window.innerWidth) * 2 - 1;
+      const ny = -(t.clientY / window.innerHeight) * 2 + 1;
+      if (engine) engine.setPointer(nx, ny);
+    }, { passive: true });
+
+    // Device Orientation / Gyroscope — tilt the device to move the 3D scene
+    if ('DeviceOrientationEvent' in window) {
+      // iOS 13+ requires explicit permission
+      const requestGyro = () => {
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+          DeviceOrientationEvent.requestPermission()
+            .then(state => {
+              if (state === 'granted') bindGyro();
+            })
+            .catch(() => {});
+        } else {
+          bindGyro();
+        }
+      };
+
+      const bindGyro = () => {
+        window.addEventListener('deviceorientation', e => {
+          // gamma: left/right tilt (−90 to 90), beta: front/back tilt (−180 to 180)
+          if (e.gamma === null || e.beta === null) return;
+          const nx = Math.max(-1, Math.min(1, e.gamma / 35));  // ±35° → ±1
+          const ny = Math.max(-1, Math.min(1, (e.beta - 30) / -45)); // tilt fwd = up
+          if (engine) engine.setPointer(nx, ny);
+        }, { passive: true });
+      };
+
+      // Try to bind gyro immediately (Android); iOS needs user gesture
+      bindGyro();
+
+      // On first user touch, also try requesting iOS permission
+      window.addEventListener('touchstart', requestGyro, { once: true });
+    }
+  }
+
   /* 7. Contact Console Form */
   function wireContactForm() {
     const form = document.getElementById('contact-form');
@@ -366,6 +410,7 @@ import { mulberry32 } from './3d/textures.js';
     wireReveals();
     wireNavigation();
     wireMouse();
+    wireTouchAndGyro();
     wireContactForm();
     measure();
 

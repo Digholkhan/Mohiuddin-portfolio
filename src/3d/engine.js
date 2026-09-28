@@ -21,9 +21,11 @@ export function createEngine() {
   }
 
   /* Viewport helpers */
-  const dpr   = () => Math.min(window.devicePixelRatio || 1, 1.75);
-  const vpW   = () => window.innerWidth;
-  const vpH   = () => window.innerHeight;
+  const isMobile  = () => window.innerWidth < 640;
+  const dpr       = () => Math.min(window.devicePixelRatio || 1, isMobile() ? 2.0 : 1.75);
+  const vpW       = () => window.innerWidth;
+  const vpH       = () => window.innerHeight;
+  const mobileFOV = () => isMobile() ? 60 : (window.innerWidth < 900 ? 52 : 40);
   const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
   const lerp  = (a, b, t)   => a + (b - a) * t;
   const smooth= (lo, hi, v) => { const x = clamp((v - lo) / (hi - lo), 0, 1); return x * x * (3 - 2 * x); };
@@ -101,9 +103,10 @@ export function createEngine() {
     _p.z += introDist;
     _p.y += (1 - RIG.intro) * 2.0;
 
-    // Mouse parallax
-    const px = RIG.mx * 1.8;
-    const py = RIG.my * 1.1;
+    // Mouse / touch parallax — soften on mobile for comfortable gyro experience
+    const parallaxScale = isMobile() ? 0.9 : 1.0;
+    const px = RIG.mx * 1.8 * parallaxScale;
+    const py = RIG.my * 1.1 * parallaxScale;
 
     camera.position.set(_p.x + px, _p.y + py, _p.z);
     camera.lookAt(_t.x + px * 0.4, _t.y + py * 0.4, _t.z);
@@ -1381,7 +1384,7 @@ export function createEngine() {
     scene.background = new THREE.Color(0x050814);
     scene.fog = new THREE.FogExp2(0x050814, 0.015);
 
-    camera = new THREE.PerspectiveCamera(40, vpW() / vpH(), 0.3, 380);
+    camera = new THREE.PerspectiveCamera(mobileFOV(), vpW() / vpH(), 0.3, 380);
     clock  = new THREE.Clock();
 
     _p = new THREE.Vector3();
@@ -1480,6 +1483,7 @@ export function createEngine() {
     if (!renderer || !camera) return;
     renderer.setSize(vpW(), vpH());
     renderer.setPixelRatio(dpr());
+    camera.fov    = mobileFOV();
     camera.aspect = vpW() / vpH();
     camera.updateProjectionMatrix();
   }
